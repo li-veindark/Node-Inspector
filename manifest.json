@@ -1,0 +1,23 @@
+{
+  "name": "Node Inspector 2.0",
+  "id": "1300386542133987209",
+  "api": "1.0.0",
+  "main": "code.js",
+  "menu": [
+    {
+      "name": "Get Selected Node Properties",
+      "command": "getSelectedNodeProperties"
+    }
+  ],
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": [
+    "figma"
+  ],
+  "ui": "ui.html",
+  "networkAccess": {
+    "allowedDomains": [
+      "none"
+    ]
+  }
+}
