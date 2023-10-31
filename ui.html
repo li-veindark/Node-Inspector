@@ -1,90 +1,107 @@
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-  href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
-  rel="stylesheet"
-/>
 
-<style>
-  body {
-    background-color: #d5deff;
-    font-family: "Inter", sans-serif;
-  }
-
-  h1 {
-    font-family: "Inter", sans-serif;
-  }
-
-  .container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 10%;
-  }
-
-  .container1 {
-    text-align: center;
-    background-color: #c4c4c4;
-    width: 300px;
-    height: 400px;
-  }
-
-  .container2 {
-    text-align: center;
-    background-color: #c4c4c4;
-    width: 300px;
-    height: 400px;
-  }
-</style>
-
-<h1>Node Comparing Plugin</h1>
-<div class="container">
-  <div class="node1">
-    <p>Node 1</p>
-    <div class="container1" id="container1"></div>
-    <button id="getPropertiesOfNode1">Select Node 1</button>
-  </div>
-  <div class="node2">
-    <p>Node 2</p>
-    <div class="container2" id="container2"></div>
-    <button id="getPropertiesOfNode2">Select node 2</button>
-  </div>
-</div>
-
-<script>
-  document
-    .getElementById("getPropertiesOfNode1")
-    .addEventListener("click", function () {
-      parent.postMessage(
-        { pluginMessage: { type: "getSelectedNodeProperties" } },
-        "*"
-      );
-    });
-
-  document
-    .getElementById("getPropertiesOfNode2")
-    .addEventListener("click", function () {
-      parent.postMessage(
-        { pluginMessage: { type: "getSelectedNodeProperties" } },
-        "*"
-      );
-    });
-
-
-
-
-  // Add this script to handle incoming messages and update containers
-  window.addEventListener("message", (event) => {
-  if (event.data.pluginMessage && event.data.pluginMessage.type === "updateContainer") {
-
-    const { containerId, data } = event.data.pluginMessage;
-    
-    let containerIdString = containerId ? "container1" : "container2";
-    let jsonDisplay = document.getElementById(`jsonDisplay${containerIdString}`);
-    if (jsonDisplay) {
-      jsonDisplay.textContent = data;
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #d5deff;
+      font-family: "Inter", sans-serif;
     }
-  }
-});
+    
+    h1 {
+      font-family: "Inter", sans-serif;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 10%;
+    }
+    
+    .container1 {
+      text-align: center;
+      background-color: #c4c4c4;
+      width: 300px;
+      height: 400px;
+    }
+    
+    .tree-node {
+      padding-left: 20px;
+      list-style: none;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .expand-icon {
+      position: absolute;
+      left: 0;
+    }
+  </style>
 
-</script>
+  <h1>Node Comparing Plugin</h1>
+  <div class="container">
+    <div class="node1">
+      <p>Node 1</p>
+      <div class="container1" id="container1"></div>
+      <button id="getPropertiesOfNode1">Select Node 1</button>
+    </div>
+  </div>
+  <script>
+    document.getElementById("getPropertiesOfNode1").addEventListener("click", function () {
+      parent.postMessage({ pluginMessage: { type: "getSelectedNodeProperties" } }, "*");
+    });
+
+    window.onmessage = (event) => {
+      console.log(event);
+      const object = event.data.pluginMessage;
+    if (object.pluginMessage.type === "sendSelectedNodeProperties") {
+      //Having the nodeid
+      const selectedNodeId = object.pluginMessage.nodeProperties;
+      console.log(selectedNodeId);
+
+        // Clear the existing content in the tree container
+        const treeContainer = document.getElementById("container1");
+        treeContainer.innerHTML = '';
+
+        // Render the tree
+        renderTree(selectedNodeId, treeContainer);
+      } else {
+        console.log("Cannot find the message");
+      }
+    };
+
+    function renderTree(node, container) {
+      const ul = document.createElement('ul');
+      const li = document.createElement('li');
+      li.className = 'tree-node';
+
+      // Create an expansion icon (e.g., plus and minus signs)
+      const expandIcon = document.createElement('span');
+      expandIcon.className = 'expand-icon';
+      expandIcon.innerHTML = '&#43;'; // Plus sign
+
+      li.appendChild(expandIcon);
+      li.innerHTML += `${node.name} [${node.type}]`;
+
+      ul.appendChild(li);
+
+      if (node.parent) {
+        renderTree(node.parent, ul);
+      }
+
+      if (container && typeof container.appendChild === 'function') {
+        container.appendChild(ul);
+      } else {
+        console.error('Invalid container element or appendChild function is not supported.');
+      }
+
+      // Toggle expand/collapse on click
+      expandIcon.addEventListener('click', () => {
+        ul.classList.toggle('expanded');
+        expandIcon.innerHTML = ul.classList.contains('expanded') ? '&#8722;' : '&#43;'; // Minus and plus signs
+      });
+    }
+  </script>
+</body>
+</html>
